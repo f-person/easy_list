@@ -26,7 +26,6 @@ class _ProductCreatePage extends State<ProductCreatePage> {
             decoration: InputDecoration(
               labelText: 'Product Title',
             ),
-            autofocus: true,
             onChanged: (String value) {
               setState(() {
                 _titleValue = value;
