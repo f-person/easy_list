@@ -48,18 +48,15 @@ class _AuthPageState extends State<AuthPage> {
               },
               title: Text('Accept Terms'),
             ),
-            Container(
-              padding: EdgeInsets.only(top: 5.0),
-              child: RaisedButton(
-                  color: Theme.of(context).accentColor,
-                  textColor: Colors.white,
-                  child: Text('Login'),
-                  onPressed: () {
-                    print(_emailValue);
-                    print(_passwordValue);
-                    Navigator.pushReplacementNamed(context, '/products');
-                  }),
-            )
+            RaisedButton(
+                color: Theme.of(context).accentColor,
+                textColor: Colors.white,
+                child: Text('Login'),
+                onPressed: () {
+                  print(_emailValue);
+                  print(_passwordValue);
+                  Navigator.pushReplacementNamed(context, '/products');
+                }),
           ],
         ),
       ),
