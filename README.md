@@ -1,4 +1,4 @@
-# flutter_practice
+# EasyList
 
 A new Flutter project.
 
