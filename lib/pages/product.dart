@@ -28,7 +28,7 @@ class ProductPage extends StatelessWidget {
           ),
         ),
         Text(
-          '\$$price',
+          '\$' + price.toString(),
           style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
         )
       ],
