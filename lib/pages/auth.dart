@@ -29,7 +29,7 @@ class _AuthPageState extends State<AuthPage> {
       keyboardType: TextInputType.emailAddress,
       validator: (String value) {
         if (value.isEmpty || !value.contains('@') || !value.contains('.')) {
-          return 'Enter valid E-Mail address.';
+          return 'Enter a valid E-Mail address.';
         }
       },
       onSaved: (String value) {
