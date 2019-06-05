@@ -17,7 +17,7 @@ class ProductPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Text(
-          'Street, City',
+          'Union Square, San Francisco',
           style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
         ),
         Container(
@@ -28,7 +28,7 @@ class ProductPage extends StatelessWidget {
           ),
         ),
         Text(
-          '\$$price',
+          '\$' + price.toString(),
           style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
         )
       ],

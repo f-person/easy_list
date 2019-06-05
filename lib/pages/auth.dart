@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -12,6 +11,7 @@ class _AuthPageState extends State<AuthPage> {
   String _emailValue;
   String _passwordValue;
   bool _acceptTerms = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   DecorationImage _buildBackgroundImage() {
     return DecorationImage(
@@ -22,28 +22,34 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  Widget _buildEmailTextField() {
-    return TextField(
+  Widget _buildEmailTextFormField() {
+    return TextFormField(
       decoration: InputDecoration(
           labelText: 'E-Mail', filled: true, fillColor: Colors.white),
       keyboardType: TextInputType.emailAddress,
-      onChanged: (String value) {
-        setState(() {
-          _emailValue = value;
-        });
+      validator: (String value) {
+        if (value.isEmpty || !value.contains('@') || !value.contains('.')) {
+          return 'Enter valid E-Mail address.';
+        }
+      },
+      onSaved: (String value) {
+        _emailValue = value;
       },
     );
   }
 
-  Widget _buildPasswordTextField() {
-    return TextField(
+  Widget _buildPasswordTextFormField() {
+    return TextFormField(
       decoration: InputDecoration(
           labelText: 'Password', filled: true, fillColor: Colors.white),
       obscureText: true,
-      onChanged: (String value) {
-        setState(() {
-          _passwordValue = value;
-        });
+      validator: (String value) {
+        if (value.length < 8) {
+          return 'Password should be more than 8 symbols.';
+        }
+      },
+      onSaved: (String value) {
+        _passwordValue = value;
       },
     );
   }
@@ -61,6 +67,10 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _submitForm() {
+    if (!_formKey.currentState.validate()) {
+      //TODO require AcceptSwitch too
+      return;
+    }
     print(_emailValue);
     print(_passwordValue);
     Navigator.pushReplacementNamed(context, '/products');
@@ -69,8 +79,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = MediaQuery.of(context).size.width;
-    final targetWidth = deviceWidth > 555.0 ? 500.0 : deviceWidth * 0.95;
-
+    final double targetWidth = deviceWidth > 550.0 ? 500.0 : deviceWidth * 0.95;
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
@@ -82,25 +91,28 @@ class _AuthPageState extends State<AuthPage> {
         padding: EdgeInsets.all(10.0),
         child: Center(
           child: SingleChildScrollView(
-            child: Container(
-              width: targetWidth,
-              child: Column(
-                children: <Widget>[
-                  _buildEmailTextField(),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  _buildPasswordTextField(),
-                  _buildAcceptSwitch(),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  RaisedButton(
-                    textColor: Colors.white,
-                    child: Text('LOGIN'),
-                    onPressed: _submitForm,
-                  ),
-                ],
+            child: Form(
+              key: _formKey,
+              child: Container(
+                width: targetWidth,
+                child: Column(
+                  children: <Widget>[
+                    _buildEmailTextFormField(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    _buildPasswordTextFormField(),
+                    _buildAcceptSwitch(),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    RaisedButton(
+                      textColor: Colors.white,
+                      child: Text('Login'),
+                      onPressed: _submitForm,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

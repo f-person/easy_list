@@ -53,7 +53,7 @@ class ProductCard extends StatelessWidget {
         children: <Widget>[
           Image.asset(product['image']),
           _buildTitlePriceRow(),
-          AddressTag('Street, City'),
+          AddressTag('Union Square, San Francisco'),
           _buildActionButtons(context)
         ],
       ),
