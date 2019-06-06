@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:EasyList/pages/product_edit.dart';
+import '../models/product.dart';
 
 class ProductListPage extends StatelessWidget {
-  final List<Map<String, dynamic>> products;
+  final List<Product> products;
   final Function updateProduct;
   final Function deleteProduct;
 
@@ -37,14 +38,14 @@ class ProductListPage extends StatelessWidget {
               deleteProduct(index);
             }
           },
-          key: Key(products[index]['title']),
+          key: Key(products[index].title),
           child: Column(
             children: <Widget>[
               ListTile(
                 leading: CircleAvatar(
-                    backgroundImage: AssetImage(products[index]['image'])),
-                title: Text(products[index]['title']),
-                subtitle: Text('\$${products[index]['price'].toString()}'),
+                    backgroundImage: AssetImage(products[index].image)),
+                title: Text(products[index].title),
+                subtitle: Text('\$${products[index].price.toString()}'),
                 trailing: _buildEditButton(context, index),
               ),
               Divider(),
