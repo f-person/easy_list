@@ -67,12 +67,11 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _submitForm() {
-    if (!_formKey.currentState.validate()) {
-      //TODO require AcceptSwitch too
+    if (!_formKey.currentState.validate() || !_acceptTerms) {
       return;
     }
-    print(_emailValue);
-    print(_passwordValue);
+    _formKey.currentState.save();
+
     Navigator.pushReplacementNamed(context, '/products');
   }
 
