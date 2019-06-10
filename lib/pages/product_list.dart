@@ -17,7 +17,7 @@ class ProductListPage extends StatelessWidget {
                 return ProductEditPage();
               },
             ),
-          );
+          ).then((_) => model.selectProduct(null));
         });
   }
 
@@ -35,16 +35,17 @@ class ProductListPage extends StatelessWidget {
                   model.deleteProduct();
                 }
               },
-              key: Key(model.products[index].title),
+              key: Key(model.allProducts[index].title),
               child: Column(
                 children: <Widget>[
                   ListTile(
                     leading: CircleAvatar(
                         backgroundImage:
-                            AssetImage(model.products[index].image)),
-                    title: Text(model.products[index].title),
+                            // AssetImage(model.allProducts[index].image)),
+                            NetworkImage(model.allProducts[index].image)),
+                    title: Text(model.allProducts[index].title),
                     subtitle:
-                        Text('\$${model.products[index].price.toString()}'),
+                        Text('\$${model.allProducts[index].price.toString()}'),
                     trailing: _buildEditButton(context, index, model),
                   ),
                   Divider(),
@@ -52,7 +53,7 @@ class ProductListPage extends StatelessWidget {
               ),
             );
           },
-          itemCount: model.products.length,
+          itemCount: model.allProducts.length,
         );
       },
     );
