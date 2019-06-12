@@ -1,4 +1,3 @@
-import 'package:EasyList/models/product.dart';
 import 'package:flutter/material.dart';
 
 import 'package:scoped_model/scoped_model.dart';
@@ -44,6 +43,23 @@ class _ProductPageState extends State<ProductsPage> {
     );
   }
 
+  Widget _buildProductsList() {
+    return ScopedModelDescendant(
+      builder: (BuildContext context, Widget child, MainModel model) {
+        Widget content = Center(child: Text('No Products Found!'));
+        if (model.displayedProducts.length > 0 && !model.isLoading) {
+          content = Products();
+        } else if (model.isLoading) {
+          content = Center(child: CircularProgressIndicator());
+        }
+        return RefreshIndicator(
+          child: content,
+          onRefresh: model.fetchProducts,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,7 +80,7 @@ class _ProductPageState extends State<ProductsPage> {
           })
         ],
       ),
-      body: Products(),
+      body: _buildProductsList(),
     );
   }
 }
