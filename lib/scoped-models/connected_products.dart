@@ -235,14 +235,14 @@ mixin UserModel on ConnectedProductsModel {
     };
     http.Response response;
     if (mode == AuthMode.Login) {
-      http.Response response = await http.post(
+      response = await http.post(
         'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo',
         //https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo
         body: json.encode(authData),
         headers: {'Content-Type': 'application/json'},
       );
     } else {
-      http.Response response = await http.post(
+      response = await http.post(
         'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo',
         body: json.encode(authData),
         headers: {'Content-Type': 'application/json'},
