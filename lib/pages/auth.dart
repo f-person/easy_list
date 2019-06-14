@@ -103,6 +103,23 @@ class _AuthPageState extends State<AuthPage> {
           await signup(_emailValue, _passwordValue);
       if (successInformation['success']) {
         Navigator.pushReplacementNamed(context, '/products');
+      } else {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('An Error Occured!'),
+                content: Text(successInformation['message']),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('Okay'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            });
       }
     }
   }
@@ -159,11 +176,16 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     ScopedModelDescendant(builder:
                         (BuildContext context, Widget child, MainModel model) {
-                      return RaisedButton(
-                        textColor: Colors.white,
-                        child: Text('Login'),
-                        onPressed: () => _submitForm(model.login, model.signup),
-                      );
+                      return model.isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : RaisedButton(
+                              textColor: Colors.white,
+                              child: Text(_authMode == AuthMode.Login
+                                  ? 'Login'
+                                  : 'Signup'),
+                              onPressed: () =>
+                                  _submitForm(model.login, model.signup),
+                            );
                     }),
                   ],
                 ),
