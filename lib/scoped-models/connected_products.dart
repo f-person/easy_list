@@ -223,8 +223,33 @@ mixin ProductsModel on ConnectedProductsModel {
 }
 
 mixin UserModel on ConnectedProductsModel {
-  void login(String email, String password) {
-    _authenticatedUser = User(id: '1', email: email, password: password);
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    _isLoading = true;
+    notifyListeners();
+    final Map<String, dynamic> authData = {
+      'email': email,
+      'password': password,
+      'returnSecureToken': true,
+    };
+    final http.Response response = await http.post(
+      'https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo',
+      body: json.encode(authData),
+      headers: {'Content-Type': 'application/json'},
+    );
+    final Map<String, dynamic> responseData = json.decode(response.body);
+    bool hasError = true;
+    String message = 'Something went wrong.';
+    if (responseData.containsKey('idToken')) {
+      hasError = false;
+      message = 'Authentication succeeded!';
+    } else if (responseData['error']['message'] == 'EMAIL_NOT_FOUND') {
+      message = 'This email was not found.';
+    } else if (responseData['error']['message'] == 'INVALID_PASSWORD') {
+      message = 'The password is invalid.';
+    }
+    _isLoading = false;
+    notifyListeners();
+    return {'success': !hasError, 'message': message};
   }
 
   Future<Map<String, dynamic>> signup(String email, String password) async {
@@ -242,6 +267,7 @@ mixin UserModel on ConnectedProductsModel {
     );
     final Map<String, dynamic> responseData = json.decode(response.body);
     bool hasError = true;
+    print(responseData);
     String message = 'Something went wrong.';
     if (responseData.containsKey('idToken')) {
       hasError = false;

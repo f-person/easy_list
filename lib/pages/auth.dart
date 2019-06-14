@@ -96,31 +96,32 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     _formKey.currentState.save();
+    Map<String, dynamic> successInformation;
     if (_authMode == AuthMode.Login) {
-      login(_emailValue, _passwordValue);
+      successInformation = await login(_emailValue, _passwordValue);
     } else {
-      final Map<String, dynamic> successInformation =
-          await signup(_emailValue, _passwordValue);
-      if (successInformation['success']) {
-        Navigator.pushReplacementNamed(context, '/products');
-      } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('An Error Occured!'),
-                content: Text(successInformation['message']),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text('Okay'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
-            });
-      }
+      successInformation = await signup(_emailValue, _passwordValue);
+    }
+    if (successInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/products');
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('An Error Occured!'),
+            content: Text(successInformation['message']),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
     }
   }
 
