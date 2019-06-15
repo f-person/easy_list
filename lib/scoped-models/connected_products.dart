@@ -162,7 +162,7 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  Future<bool> fetchProducts() {
+  Future<bool> fetchProducts({onlyForUser: false}) {
     _isLoading = true;
     return http
         .get(
@@ -184,10 +184,16 @@ mixin ProductsModel on ConnectedProductsModel {
           price: productData['price'],
           userEmail: productData['userEmail'],
           userId: productData['userId'],
+          isFavorite: productData['wishlistUsers'] == null
+              ? false
+              : (productData['wishlistUsers'] as Map<String, dynamic>)
+                  .containsKey(_authenticatedUser.id),
         );
         fetchedProductList.add(product);
       });
-      _products = fetchedProductList;
+      _products = onlyForUser ? fetchedProductList.where((Product product) {
+        return product.userId == _authenticatedUser.id;
+      }).toList() : fetchedProductList;
       _isLoading = false;
       notifyListeners();
       _selProductId = null;
@@ -198,7 +204,7 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  void toggleProductFavoriteStatus() {
+  void toggleProductFavoriteStatus() async {
     final bool newFavoriteStatus = !_products[selectedProductIndex].isFavorite;
     final Product updatedProduct = Product(
       id: selectedProduct.id,
@@ -211,8 +217,33 @@ mixin ProductsModel on ConnectedProductsModel {
       userId: selectedProduct.userId,
     );
     _products[selectedProductIndex] = updatedProduct;
-    // _selProductId = null;
     notifyListeners();
+
+    http.Response response;
+
+    if (newFavoriteStatus) {
+      response = await http.put(
+          'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(true));
+    } else {
+      response = await http.delete(
+          'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final Product updatedProduct = Product(
+        id: selectedProduct.id,
+        title: selectedProduct.title,
+        description: selectedProduct.description,
+        price: selectedProduct.price,
+        image: selectedProduct.image,
+        isFavorite: !newFavoriteStatus,
+        userEmail: selectedProduct.userEmail,
+        userId: selectedProduct.userId,
+      );
+      _products[selectedProductIndex] = updatedProduct;
+      notifyListeners();
+    }
   }
 
   void selectProduct(String productId) {
@@ -254,6 +285,7 @@ mixin UserModel on ConnectedProductsModel {
         body: json.encode(authData),
         headers: {'Content-Type': 'application/json'},
       );
+      print(response);
     } else {
       response = await http.post(
         'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo',
@@ -320,6 +352,7 @@ mixin UserModel on ConnectedProductsModel {
   void logout() async {
     _authenticatedUser = null;
     _authTimer.cancel();
+    _userSubject.add(false);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('userEmail');
@@ -327,10 +360,7 @@ mixin UserModel on ConnectedProductsModel {
   }
 
   void setAuthTimeout(int time) {
-    _authTimer = Timer(Duration(seconds: time), () {
-      logout();
-      _userSubject.add(false);
-    });
+    _authTimer = Timer(Duration(seconds: time), logout);
   }
 }
 
