@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/rendering.dart';
 
 import 'package:scoped_model/scoped_model.dart';
+import 'package:map_view/map_view.dart';
 
 import './pages/auth.dart';
 import './pages/products_admin.dart';
@@ -14,6 +15,7 @@ void main() {
   // debugPaintSizeEnabled = true;
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
+  MapView.setApiKey('AIzaSyBgpNw2VqlRjGprmZ0S5L5rxhJcy5KIDoM');
   runApp(MyApp());
 }
 
@@ -74,14 +76,16 @@ class _MyAppState extends State<MyApp> {
               return product.id == productId;
             });
             return MaterialPageRoute<bool>(
-              builder: (BuildContext context) => !_isAuthenticated ? AuthPage() : ProductPage(product),
+              builder: (BuildContext context) =>
+                  !_isAuthenticated ? AuthPage() : ProductPage(product),
             );
           }
           return null;
         },
         onUnknownRoute: (RouteSettings settings) {
           return MaterialPageRoute(
-              builder: (BuildContext context) => !_isAuthenticated ? AuthPage() : ProductsPage(_model));
+              builder: (BuildContext context) =>
+                  !_isAuthenticated ? AuthPage() : ProductsPage(_model));
         },
       ),
     );
