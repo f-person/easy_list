@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:map_view/map_view.dart';
 
 import '../widgets/ui_elements/title_default.dart';
 import '../models/product.dart';
@@ -10,18 +11,49 @@ class ProductPage extends StatelessWidget {
 
   ProductPage(this.product);
 
+  void _showMap() {
+    final List<Marker> markers = <Marker>[
+      Marker('position', 'Position', product.location.latitude,
+          product.location.longitude)
+    ];
+    final cameraPosition = CameraPosition(
+        Location(product.location.latitude, product.location.longitude), 14.0);
+    final mapView = MapView();
+    mapView.show(
+        MapOptions(
+            initialCameraPosition: cameraPosition,
+            mapViewType: MapViewType.normal,
+            title: 'Product Location'),
+        toolbarActions: [ToolbarAction('Close', 1)]);
+    mapView.onToolbarAction.listen((int id) {
+      if (id == 1) {
+        mapView.dismiss();
+      }
+    });
+    mapView.onMapReady.listen((_) {
+      mapView.setMarkers(markers);
+    });
+  }
+
   Widget _buildAddressPriceRow(String address, double price) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: <Widget>[
-        Expanded(
+        GestureDetector(
+          onTap: _showMap,
           child: Center(
             child: Text(
-              "$address | \$${price.toString()}",
+              "$address",
               style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
             ),
           ),
         ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
+          child: Text(
+            '\$$price',
+            style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
+          ),
+        )
       ],
     );
   }
