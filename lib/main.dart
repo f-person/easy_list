@@ -16,7 +16,9 @@ void main() {
   // debugPaintBaselinesEnabled = true;
   // debugPaintPointersEnabled = true;
   MapView.setApiKey('AIzaSyBgpNw2VqlRjGprmZ0S5L5rxhJcy5KIDoM');
-  runApp(MyApp());
+  runApp(MaterialApp(
+    home: MyApp(),
+  ));
 }
 
 class MyApp extends StatefulWidget {

@@ -108,8 +108,8 @@ mixin ProductsModel on ConnectedProductsModel {
   //   return false;
   // });
 
-  Future<bool> updateProduct(
-      String title, String description, String image, double price) {
+  Future<bool> updateProduct(String title, String description, String image,
+      double price, LocationData locData) {
     _isLoading = true;
     notifyListeners();
     Map<String, dynamic> updateData = {
@@ -118,6 +118,9 @@ mixin ProductsModel on ConnectedProductsModel {
       'image':
           'https://cdn.pixabay.com/photo/2015/10/02/12/00/chocolate-968457_960_720.jpg',
       'price': price,
+      'loc_lat': locData.latitude,
+      'loc_lng': locData.longitude,
+      'loc_address': locData.address,
       'userEmail': selectedProduct.userEmail,
       'userId': _authenticatedUser.id,
     };
@@ -134,6 +137,7 @@ mixin ProductsModel on ConnectedProductsModel {
             description: description,
             image: image,
             price: price,
+            location: locData,
             userEmail: selectedProduct.userEmail,
             userId: _authenticatedUser.id);
 
@@ -224,6 +228,7 @@ mixin ProductsModel on ConnectedProductsModel {
       description: selectedProduct.description,
       price: selectedProduct.price,
       image: selectedProduct.image,
+      location: selectedProduct.location,
       isFavorite: newFavoriteStatus,
       userEmail: selectedProduct.userEmail,
       userId: selectedProduct.userId,
@@ -249,6 +254,7 @@ mixin ProductsModel on ConnectedProductsModel {
         description: selectedProduct.description,
         price: selectedProduct.price,
         image: selectedProduct.image,
+        location: selectedProduct.location,
         isFavorite: !newFavoriteStatus,
         userEmail: selectedProduct.userEmail,
         userId: selectedProduct.userId,
