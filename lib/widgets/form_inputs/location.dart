@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart' as geoloc;
 
 import '../helpers/ensure-visible.dart';
 import '../../models/location_data.dart';
@@ -29,7 +31,7 @@ class _LocationInputState extends State<LocationInput> {
   void initState() {
     _addressInputFocusNode.addListener(_updateLocation);
     if (widget.product != null) {
-      getStaticMap(widget.product.location.address, false);
+      _getStaticMap(widget.product.location.address, geocode: false);
     }
     super.initState();
   }
@@ -40,7 +42,8 @@ class _LocationInputState extends State<LocationInput> {
     super.dispose();
   }
 
-  void getStaticMap(String address, [geocode = true]) async {
+  void _getStaticMap(String address,
+      {bool geocode = true, double lat, double lon}) async {
     if (address.isEmpty) {
       setState(() {
         _staticMapUri = null;
@@ -65,27 +68,56 @@ class _LocationInputState extends State<LocationInput> {
         latitude: double.parse(decodedResponse[0]['lat']),
         longitude: double.parse(decodedResponse[0]['lon']),
       );
-    } else {
+    } else if (lat == null && lon == null) {
       _locationData = widget.product.location;
+    } else {
+      _locationData =
+          LocationData(address: address, latitude: lat, longitude: lon);
     }
+    if (mounted) {
+      final Uri staticMapUri =
+          Uri.https('maps.locationiq.com', '/v2/staticmap', {
+        'key': 'f57778666f47cc',
+        'size': '500x300',
+        'markers':
+            'size:large|icon:large-red-cutout|${_locationData.latitude},${_locationData.longitude}',
+      });
 
-    final Uri staticMapUri = Uri.https('maps.locationiq.com', '/v2/staticmap', {
+      widget.setLocation(_locationData);
+
+      setState(() {
+        _addressInputController.text = _locationData.address;
+        _staticMapUri = staticMapUri;
+      });
+    }
+  }
+
+  Future<String> _getAddress(double lat, double lon) async {
+    Uri uri = Uri.https('eu1.locationiq.com', '/v1/reverse.php', {
       'key': 'f57778666f47cc',
-      'size': '500x300',
-      'markers':
-          'size:large|icon:large-red-cutout|${_locationData.latitude},${_locationData.longitude}',
+      'lat': lat.toString(),
+      'lon': lon.toString(),
+      'format': 'json'
     });
+    final http.Response response = await http.get(uri);
+    final decodedResponse = json.decode(response.body);
+    return decodedResponse['display_name'];
+  }
 
-    widget.setLocation(_locationData);
-    setState(() {
-      _addressInputController.text = _locationData.address;
-      _staticMapUri = staticMapUri;
-    });
+  void _getUserLocation() async {
+    final location = geoloc.Location();
+    final currentLocation = await location.getLocation();
+    final address =
+        await _getAddress(currentLocation.latitude, currentLocation.longitude);
+    _getStaticMap(address,
+        geocode: false,
+        lat: currentLocation.latitude,
+        lon: currentLocation.longitude);
   }
 
   void _updateLocation() {
     if (!_addressInputFocusNode.hasFocus) {
-      getStaticMap(_addressInputController.text);
+      _getStaticMap(_addressInputController.text);
     }
   }
 
@@ -106,9 +138,12 @@ class _LocationInputState extends State<LocationInput> {
             decoration: InputDecoration(labelText: 'Address'),
           ),
         ),
-        SizedBox(
-          height: 10.0,
+        SizedBox(height: 10.0),
+        FlatButton(
+          child: Text('Get Current Location'),
+          onPressed: _getUserLocation,
         ),
+        SizedBox(height: 10.0),
         _staticMapUri == null
             ? Container()
             : Image.network(_staticMapUri.toString())

@@ -10,25 +10,18 @@ class ProductPage extends StatelessWidget {
 
   ProductPage(this.product);
 
-  Widget _buildAddressPriceRow(double price) {
+  Widget _buildAddressPriceRow(String address, double price) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(
-          'Union Square, San Francisco',
-          style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
-        ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 5.0),
-          child: Text(
-            '|',
-            style: TextStyle(color: Colors.grey),
+        Expanded(
+          child: Center(
+            child: Text(
+              "$address | \$${price.toString()}",
+              style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
+            ),
           ),
         ),
-        Text(
-          '\$' + price.toString(),
-          style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
-        )
       ],
     );
   }
@@ -58,7 +51,7 @@ class ProductPage extends StatelessWidget {
               padding: EdgeInsets.all(10.0),
               child: TitleDefault(product.title),
             ),
-            _buildAddressPriceRow(product.price),
+            _buildAddressPriceRow(product.location.address, product.price),
             Container(
               padding: EdgeInsets.all(10.0),
               child: Text(
