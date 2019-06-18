@@ -5,6 +5,7 @@ import 'package:scoped_model/scoped_model.dart';
 import '../widgets/helpers/ensure-visible.dart';
 import '../widgets/form_inputs/location.dart';
 import '../models/product.dart';
+import '../models/location_data.dart';
 import '../scoped-models/main.dart';
 
 class ProductEditPage extends StatefulWidget {
@@ -19,7 +20,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
     'title': null,
     'description': null,
     'price': null,
-    'image': 'assets/food.jpg'
+    'image': 'assets/food.jpg',
+    'location': null,
   };
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _titleFocusNode = FocusNode();
@@ -102,6 +104,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _formData['description'],
         _formData['image'],
         _formData['price'],
+        _formData['location'],
       ).then((bool success) {
         if (success) {
           Navigator.pushReplacementNamed(context, '/products')
@@ -175,7 +178,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
               SizedBox(
                 height: 10.0,
               ),
-              LocationInput(),
+              LocationInput(_setLocation),
               SizedBox(
                 height: 10.0,
               ),
@@ -193,6 +196,10 @@ class _ProductEditPageState extends State<ProductEditPage> {
         ),
       ),
     );
+  }
+
+  void _setLocation(LocationData locData) {
+    _formData['location'] = locData;
   }
 
   @override
