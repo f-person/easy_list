@@ -5,11 +5,13 @@ import 'package:http/http.dart' as http;
 
 import '../helpers/ensure-visible.dart';
 import '../../models/location_data.dart';
+import '../../models/product.dart';
 
 class LocationInput extends StatefulWidget {
   final Function setLocation;
+  final Product product;
 
-  LocationInput(this.setLocation);
+  LocationInput(this.setLocation, this.product);
 
   @override
   State<StatefulWidget> createState() {
@@ -26,6 +28,9 @@ class _LocationInputState extends State<LocationInput> {
   @override
   void initState() {
     _addressInputFocusNode.addListener(_updateLocation);
+    if (widget.product != null) {
+      getStaticMap(widget.product.location.address);
+    }
     super.initState();
   }
 
@@ -44,21 +49,25 @@ class _LocationInputState extends State<LocationInput> {
       return;
     }
 
-    final Uri uri = Uri.https(
-      'eu1.locationiq.com',
-      'v1/search.php',
-      {'key': 'f57778666f47cc', 'q': address, 'format': 'json'},
-    );
-    final http.Response response = await http.get(uri);
-    final decodedResponse = json.decode(response.body);
-    print(decodedResponse);
+    if (widget.product == null) {
+      final Uri uri = Uri.https(
+        'eu1.locationiq.com',
+        'v1/search.php',
+        {'key': 'f57778666f47cc', 'q': address, 'format': 'json'},
+      );
+      final http.Response response = await http.get(uri);
+      final decodedResponse = json.decode(response.body);
+      print(decodedResponse);
 
-    final formattedAddress = decodedResponse[0]['display_name'];
-    _locationData = LocationData(
-      address: formattedAddress,
-      latitude: double.parse(decodedResponse[0]['lat']),
-      longitude: double.parse(decodedResponse[0]['lon']),
-    );
+      final formattedAddress = decodedResponse[0]['display_name'];
+      _locationData = LocationData(
+        address: formattedAddress,
+        latitude: double.parse(decodedResponse[0]['lat']),
+        longitude: double.parse(decodedResponse[0]['lon']),
+      );
+    } else {
+      _locationData = widget.product.location;
+    }
 
     final Uri staticMapUri = Uri.https('maps.locationiq.com', '/v2/staticmap', {
       'key': 'f57778666f47cc',
