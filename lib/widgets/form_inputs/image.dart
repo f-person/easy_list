@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+
+import 'package:image_picker/image_picker.dart';
 
 class ImageInput extends StatefulWidget {
   @override
@@ -8,13 +12,43 @@ class ImageInput extends StatefulWidget {
 }
 
 class _ImageInputState extends State<ImageInput> {
+  File _imageFile;
+
+  void _getImage(BuildContext context, ImageSource source) {
+    ImagePicker.pickImage(source: source, maxWidth: 400.0).then((File image) {
+      Navigator.pop(context);
+      setState(() {
+        _imageFile = image;
+      });
+    });
+  }
+
   void _openImagePicker(BuildContext context) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
           return Container(
+            height: 150.0,
             padding: EdgeInsets.all(10.0),
-            child: Column(),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  'Pick an image',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10.0),
+                FlatButton(
+                  textColor: Theme.of(context).primaryColor,
+                  child: Text('Camera'),
+                  onPressed: () => _getImage(context, ImageSource.camera),
+                ),
+                FlatButton(
+                  textColor: Theme.of(context).primaryColor,
+                  child: Text('Gallery'),
+                  onPressed: () => _getImage(context, ImageSource.gallery),
+                )
+              ],
+            ),
           );
         });
   }
@@ -26,7 +60,7 @@ class _ImageInputState extends State<ImageInput> {
       children: <Widget>[
         OutlineButton(
           borderSide: BorderSide(color: buttonColor, width: 2.0),
-          onPressed: () {},
+          onPressed: () => _openImagePicker(context),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -41,7 +75,17 @@ class _ImageInputState extends State<ImageInput> {
               )
             ],
           ),
-        )
+        ),
+        SizedBox(height: 10.0),
+        _imageFile == null
+            ? Text('')
+            : Image.file(
+                _imageFile,
+                fit: BoxFit.cover,
+                height: 300.0,
+                width: MediaQuery.of(context).size.width,
+                alignment: Alignment.topCenter,
+              )
       ],
     );
   }
