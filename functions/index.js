@@ -13,13 +13,7 @@ const uuid = require('uuid/v4');
 // exports.helloWorld = functions.https.onRequest((request, response) => {
 //  response.send("Hello from Firebase!");
 // });
-const gcconfig = {
-    projectId: 'flutter-products-22852',
-    keyFilename: 'flutter-products.json'
-};
 
-// const gcs = require('@google-cloud/storage')(gcconfig);
-// const { gcs } = require('@google-cloud/storage');
 const { Storage } = require('@google-cloud/storage');
 const gcs = new Storage({ projectId: 'flutter-products-22852', keyFilename: 'flutter-products.json' });
 
