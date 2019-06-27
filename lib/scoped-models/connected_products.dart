@@ -155,50 +155,118 @@ mixin ProductsModel on ConnectedProductsModel {
     // });
   }
 
-  Future<bool> updateProduct(String title, String description, String image,
-      double price, LocationData locData) {
+  Future<bool> updateProduct(String title, String description, File image,
+      double price, LocationData locData) async {
     _isLoading = true;
     notifyListeners();
-    Map<String, dynamic> updateData = {
+    String imageUrl = selectedProduct.image;
+    String imagePath = selectedProduct.imagePath;
+    if (image != null) {
+      final uploadData = await uploadImage(image);
+
+      if (uploadData == null) {
+        print('Upload failed!');
+        return false;
+      }
+
+      imageUrl = uploadData['imageUrl'];
+      imagePath = uploadData['imagePath'];
+    }
+    final Map<String, dynamic> updateData = {
       'title': title,
       'description': description,
-      'image':
-          'https://cdn.pixabay.com/photo/2015/10/02/12/00/chocolate-968457_960_720.jpg',
+      'imageUrl': imageUrl,
+      'imagePath': imagePath,
       'price': price,
       'loc_lat': locData.latitude,
       'loc_lng': locData.longitude,
       'loc_address': locData.address,
       'userEmail': selectedProduct.userEmail,
-      'userId': _authenticatedUser.id,
+      'userId': selectedProduct.userId
     };
-    return http
-        .put(
-            'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
-            body: json.encode(updateData))
-        .then(
-      (http.Response response) {
-        _isLoading = false;
-        final Product updatedProduct = Product(
-            id: selectedProduct.id,
-            title: title,
-            description: description,
-            image: image,
-            imagePath: selectedProduct.imagePath,
-            price: price,
-            location: locData,
-            userEmail: selectedProduct.userEmail,
-            userId: _authenticatedUser.id);
-
-        _products[selectedProductIndex] = updatedProduct;
-        notifyListeners();
-        return true;
-      },
-    ).catchError((error) {
+    try {
+      final http.Response response = await http.put(
+          'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
+          body: json.encode(updateData));
+      _isLoading = false;
+      final Product updatedProduct = Product(
+          id: selectedProduct.id,
+          title: title,
+          description: description,
+          image: imageUrl,
+          imagePath: imagePath,
+          price: price,
+          location: locData,
+          userEmail: selectedProduct.userEmail,
+          userId: selectedProduct.userId);
+      _products[selectedProductIndex] = updatedProduct;
+      notifyListeners();
+      return true;
+    } catch (error) {
       _isLoading = false;
       notifyListeners();
       return false;
-    });
+    }
   }
+
+  // Future<bool> updateProduct(String title, String description, File image,
+  //     double price, LocationData locData) async {
+  //   _isLoading = true;
+  //   notifyListeners();
+  //   String imageUrl = selectedProduct.image;
+  //   String imagePath = selectedProduct.imagePath;
+
+  //   if (image != null) {
+  //     final uploadData = await uploadImage(image);
+
+  //     if (uploadData == null) {
+  //       print('Upload failed!');
+  //       return false;
+  //     }
+
+  //     imageUrl = uploadData['imageUrl'];
+  //     imagePath = uploadData['imagePath'];
+  //   }
+
+  //   Map<String, dynamic> updateData = {
+  //     'title': title,
+  //     'description': description,
+  //     'imageUrl': imageUrl,
+  //     'imagePath': imagePath,
+  //     'price': price,
+  //     'loc_lat': locData.latitude,
+  //     'loc_lng': locData.longitude,
+  //     'loc_address': locData.address,
+  //     'userEmail': selectedProduct.userEmail,
+  //     'userId': _authenticatedUser.id,
+  //   };
+
+  //   try {
+  //     final http.Response response = await http.put(
+  //         'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
+  //         body: json.encode(updateData));
+
+  //     _isLoading = false;
+  //     final Product updatedProduct = Product(
+  //         id: selectedProduct.id,
+  //         title: title,
+  //         description: description,
+  //         image: imageUrl,
+  //         imagePath: imagePath,
+  //         price: price,
+  //         location: locData,
+  //         userEmail: selectedProduct.userEmail,
+  //         userId: _authenticatedUser.id);
+
+  //     _products[selectedProductIndex] = updatedProduct;
+  //     notifyListeners();
+  //     return true;
+  //   } catch (error) {
+  //     _isLoading = false;
+  //     notifyListeners();
+  //     return false;
+  //   }
+  // }
 
   Future<bool> deleteProduct() {
     _isLoading = true;
