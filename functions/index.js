@@ -19,7 +19,9 @@ const gcconfig = {
 };
 
 // const gcs = require('@google-cloud/storage')(gcconfig);
-const { gcs } = require('@google-cloud/storage');
+// const { gcs } = require('@google-cloud/storage');
+const { Storage } = require('@google-cloud/storage');
+const gcs = new Storage({ projectId: 'flutter-products-22852', keyFilename: 'flutter-products.json' });
 
 fbAdmin.initializeApp({
     credential: fbAdmin.credential.cert(require('./flutter-products.json'))
@@ -60,7 +62,9 @@ exports.storeImage = functions.https.onRequest((req, res) => {
                 imagePath = oldImagePath;
             }
 
-            return fbAdmin.auth().verifyIdToken(idToken)
+            return fbAdmin
+                .auth()
+                .verifyIdToken(idToken)
                 .then(decodedToken => {
                     return bucket.upload(uploadData.filePath, {
                         uploadType: 'media',
@@ -68,7 +72,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
                         metadata: {
                             metadata: {
                                 contentType: uploadData.type,
-                                firebaseStorageDownloadToken: id
+                                firebaseStorageDownloadTokens: id
                             }
                         }
                     });
@@ -86,7 +90,7 @@ exports.storeImage = functions.https.onRequest((req, res) => {
                     });
                 })
                 .catch(error => {
-                    return res.status(401).json({ error: "Unauthorized!" });
+                    return res.status(401).json({ error: 'Unauthorized!' });
                 });
         });
         return busboy.end(req.rawBody);

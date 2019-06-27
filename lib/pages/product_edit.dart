@@ -124,18 +124,15 @@ class _ProductEditPageState extends State<ProductEditPage> {
   void _submitForm(
       Function addProduct, Function updateProduct, Function setSelectedProduct,
       [int selectedProductIndex]) {
-    if (!_formKey.currentState.validate() || (_formData['image'] == null && selectedProductIndex == -1)) {
+    if (!_formKey.currentState.validate() ||
+        (_formData['image'] == null && selectedProductIndex == -1)) {
       return;
     }
     _formKey.currentState.save();
     if (selectedProductIndex == -1) {
-      addProduct(
-        _titleTextController.text,
-        _descriptionTextController.text,
-        _formData['image'],
-        _priceTextController.text,
-        _formData['location'],
-      ).then((bool success) {
+      addProduct(_titleTextController.text, _descriptionTextController.text,
+              _formData['image'], _formData['price'], _formData['location'])
+          .then((bool success) {
         if (success) {
           Navigator.pushReplacementNamed(context, '/products')
               .then((_) => setSelectedProduct(null));
@@ -144,8 +141,8 @@ class _ProductEditPageState extends State<ProductEditPage> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Something went wrong"),
-                  content: Text("Please try again!"),
+                  title: Text('Something went wrong'),
+                  content: Text('Please try again!'),
                   actions: <Widget>[
                     FlatButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -161,7 +158,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
         _titleTextController.text,
         _descriptionTextController.text,
         _formData['image'],
-        _priceTextController.text,
+        _formData['price'],
         _formData['location'],
       ).then((_) => Navigator.pushReplacementNamed(context, '/products')
           .then((_) => setSelectedProduct(null)));

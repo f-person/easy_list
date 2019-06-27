@@ -23,11 +23,11 @@ class _ImageInputState extends State<ImageInput> {
 
   void _getImage(BuildContext context, ImageSource source) {
     ImagePicker.pickImage(source: source, maxWidth: 400.0).then((File image) {
-      Navigator.pop(context);
       setState(() {
         widget.setImage(image);
         _imageFile = image;
       });
+      Navigator.pop(context);
     });
   }
 
