@@ -41,19 +41,15 @@ class ProductPage extends StatelessWidget {
       children: <Widget>[
         GestureDetector(
           onTap: _showMap,
-          child: Center(
-            child: Text(
-              "$address",
-              style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
-            ),
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.5),
           child: Text(
-            '\$$price',
+            "$address",
+            textAlign: TextAlign.center,
             style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
           ),
+        ),
+        Text(
+          '\$$price',
+          style: TextStyle(fontFamily: 'Oswald', color: Colors.grey),
         )
       ],
     );

@@ -185,7 +185,7 @@ mixin ProductsModel on ConnectedProductsModel {
       'userId': selectedProduct.userId
     };
     try {
-      final http.Response response = await http.put(
+      await http.put(
           'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}.json?auth=${_authenticatedUser.token}',
           body: json.encode(updateData));
       _isLoading = false;
@@ -288,8 +288,11 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  Future<bool> fetchProducts({onlyForUser: false}) {
+  Future<bool> fetchProducts({onlyForUser = false, clearExisting = false}) {
     _isLoading = true;
+    if (clearExisting) {
+      _products = [];
+    }
     return http
         .get(
             'https://flutter-products-22852.firebaseio.com/products.json?auth=${_authenticatedUser.token}')
@@ -337,48 +340,49 @@ mixin ProductsModel on ConnectedProductsModel {
     });
   }
 
-  void toggleProductFavoriteStatus() async {
-    final bool newFavoriteStatus = !_products[selectedProductIndex].isFavorite;
-    final Product updatedProduct = Product(
-      id: selectedProduct.id,
-      title: selectedProduct.title,
-      description: selectedProduct.description,
-      price: selectedProduct.price,
-      image: selectedProduct.image,
-      imagePath: selectedProduct.imagePath,
-      location: selectedProduct.location,
-      isFavorite: newFavoriteStatus,
-      userEmail: selectedProduct.userEmail,
-      userId: selectedProduct.userId,
+  void toggleProductFavoriteStatus(Product toggledProduct) async {
+    final bool isCurrentlyFavorite = toggledProduct.isFavorite;
+    final bool newFavoriteStatus = !isCurrentlyFavorite;
+    final int toggledProductIndex = _products.indexWhere(
+      (Product product) {
+        return product.id == toggledProduct.id;
+      },
     );
-    _products[selectedProductIndex] = updatedProduct;
+    final Product updatedProduct = Product(
+        id: toggledProduct.id,
+        title: toggledProduct.title,
+        description: toggledProduct.description,
+        price: toggledProduct.price,
+        image: toggledProduct.image,
+        imagePath: toggledProduct.imagePath,
+        location: toggledProduct.location,
+        userEmail: toggledProduct.userEmail,
+        userId: toggledProduct.userId,
+        isFavorite: newFavoriteStatus);
+    _products[toggledProductIndex] = updatedProduct;
     notifyListeners();
-
     http.Response response;
-
     if (newFavoriteStatus) {
       response = await http.put(
-          'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
+          'https://flutter-products-22852.firebaseio.com/products/${toggledProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}',
           body: json.encode(true));
     } else {
       response = await http.delete(
-          'https://flutter-products-22852.firebaseio.com/products/${selectedProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
+          'https://flutter-products-22852.firebaseio.com/products/${toggledProduct.id}/wishlistUsers/${_authenticatedUser.id}.json?auth=${_authenticatedUser.token}');
     }
-
     if (response.statusCode != 200 && response.statusCode != 201) {
       final Product updatedProduct = Product(
-        id: selectedProduct.id,
-        title: selectedProduct.title,
-        description: selectedProduct.description,
-        price: selectedProduct.price,
-        image: selectedProduct.image,
-        imagePath: selectedProduct.imagePath,
-        location: selectedProduct.location,
-        isFavorite: !newFavoriteStatus,
-        userEmail: selectedProduct.userEmail,
-        userId: selectedProduct.userId,
-      );
-      _products[selectedProductIndex] = updatedProduct;
+          id: toggledProduct.id,
+          title: toggledProduct.title,
+          description: toggledProduct.description,
+          price: toggledProduct.price,
+          image: toggledProduct.image,
+          imagePath: toggledProduct.imagePath,
+          location: toggledProduct.location,
+          userEmail: toggledProduct.userEmail,
+          userId: toggledProduct.userId,
+          isFavorite: !newFavoriteStatus);
+      _products[toggledProductIndex] = updatedProduct;
       notifyListeners();
     }
   }
