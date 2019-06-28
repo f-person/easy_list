@@ -93,9 +93,6 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
               return 'Passwords do not match.';
             }
           },
-          onSaved: (String value) {
-            _passwordValue = value;
-          },
         ),
       ),
     );

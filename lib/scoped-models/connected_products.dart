@@ -410,6 +410,7 @@ mixin UserModel on ConnectedProductsModel {
 
   Future<Map<String, dynamic>> authenticate(String email, String password,
       [AuthMode mode = AuthMode.Login]) async {
+    print("----- password=$password -----");
     _isLoading = true;
     notifyListeners();
     final Map<String, dynamic> authData = {
@@ -424,7 +425,6 @@ mixin UserModel on ConnectedProductsModel {
         body: json.encode(authData),
         headers: {'Content-Type': 'application/json'},
       );
-      print(response);
     } else {
       response = await http.post(
         'https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAb2gaJKanp5hgrHMNcxAHjAAzZb2XQNqo',
